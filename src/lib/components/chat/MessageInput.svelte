@@ -748,7 +748,7 @@
 				</form>
 
 				<div class="mt-1.5 text-xs text-gray-500 text-center">
-					LLMs can make mistakes. Verify important information.
+					LLMs can make mistakes. Verify important information. Check also our <a href="#" class="hover:underline">Critical Doc</a>.
 				</div>
 			</div>
 		</div>

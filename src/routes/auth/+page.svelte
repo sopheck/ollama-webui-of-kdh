@@ -61,7 +61,7 @@
 	<div class="fixed m-10 z-50">
 		<div class="flex space-x-2">
 			<div class=" self-center">
-				<img src="/ollama.png" class=" w-8" />
+				<img src="/kdh-ollama.png" class="w-20" />
 			</div>
 		</div>
 	</div>
@@ -90,7 +90,7 @@
 					}}
 				>
 					<div class=" text-xl md:text-2xl font-bold">
-						{mode === 'signin' ? 'Sign in' : 'Sign up'} to Ollama Web UI
+						{mode === 'signin' ? 'Sign in' : 'Sign up'} to KDH KI-Playground
 					</div>
 
 					<div class="flex flex-col mt-4">
@@ -162,9 +162,56 @@
 						</div>
 					</div>
 				</form>
+				<div class="mt-5">
+					
+
+					<div class="flex items-start space-x-2 mt-4 text-sm text-justify hyphens-auto" lang="de">
+						<svg class="w-6 h-6 text-gray-900 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+							<path fill-rule="evenodd" d="M2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0Zm9.4-5.5a1 1 0 1 0 0 2 1 1 0 1 0 0-2ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4c0-.6-.4-1-1-1h-2Z" clip-rule="evenodd"/>
+						  </svg>
+						  
+						<span class="ml-2">Der KI-Playground ist ein Service der Kompetenzwerkstatt Digital Humanities der Universitätsbibliothek an der Humboldt-Universität zu Berlin. Dieser wird zunächst ausschließlich im Rahmen des KDH-Workshops "Generative KI" bereitgestellt. Die Bereitstellung endet mit dem Workshop-Abschluss am 04.03.2024.</span>
+						</div>
+				</div>
 			</div>
 		</div>
+
+
 	</div>
+
+<footer class="bg-white m-4"> <!--dark:bg-gray-900-->
+    <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
+        <div class="sm:flex sm:items-center sm:justify-between">
+            <a href="https://blogs.hu-berlin.de/furesh/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
+                <img src="/kdh-blue.png" class="h-20" alt="KDH Logo" />
+            </a>
+            <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0"> <!--dark:text-gray-400-->
+                <!--<li>
+                    <a href="https://blogs.hu-berlin.de/furesh/" class="hover:underline me-4 md:me-6">KDH Website</a>
+                </li>-->
+                <li class="flex flex-col items-center">	
+                    <p class="me-4 md:me-6 text-center">
+						Your data will be stored exclusively on HU Berlin servers and<br>will not be passed on to third parties.
+					</p>
+					<svg class="w-6 h-6 mt-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+						<path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+					</svg>
+                </li>
+                <!--<li>
+                    <a href="#" class="hover:underline me-4 md:me-6">Licensing</a>
+                </li>
+                <li>
+                    <a href="#" class="hover:underline">Contact</a>
+                </li>-->
+            </ul>
+        </div>
+        <hr class="my-6 sm:mx-auto lg:my-8" /> <!--dark:border-gray-900-->
+        <span class="block text-sm text-gray-500 sm:text-center"><!--dark:text-gray-400-->© 2024 <a href="https://blogs.hu-berlin.de/furesh/" class="hover:underline">KDH UB HU-Berlin</a>. MIT License.</span>
+    </div>
+</footer>
+
+
+
 {/if}
 
 <style>

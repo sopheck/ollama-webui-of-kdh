@@ -35,6 +35,7 @@
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import ModelSelector from '$lib/components/chat/ModelSelector.svelte';
 	import Navbar from '$lib/components/layout/Navbar.svelte';
+	import Infobar from '$lib/components/layout/Infobar.svelte';
 	import { RAGTemplate } from '$lib/utils/rag';
 
 	let stopResponseFlag = false;
@@ -738,6 +739,7 @@
 	}}
 />
 
+<Infobar />
 <Navbar {title} shareEnabled={messages.length > 0} {initNewChat} {tags} {addTag} {deleteTag} />
 <div class="min-h-screen w-full flex justify-center">
 	<div class=" py-2.5 flex flex-col justify-between w-full">
@@ -771,3 +773,5 @@
 		{stopResponse}
 	/>
 </div>
+
+

@@ -31,6 +31,7 @@
 	import ShortcutsModal from '$lib/components/chat/ShortcutsModal.svelte';
 	import { getDocs } from '$lib/apis/documents';
 	import { getAllChatTags } from '$lib/apis/chats';
+	import Infobar from '../../lib/components/layout/Infobar.svelte';
 
 	let ollamaVersion = '';
 	let loaded = false;

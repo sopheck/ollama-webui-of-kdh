@@ -36,6 +36,7 @@
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import ModelSelector from '$lib/components/chat/ModelSelector.svelte';
 	import Navbar from '$lib/components/layout/Navbar.svelte';
+	import Infobar from '$lib/components/layout/Infobar.svelte';
 	import { RAGTemplate } from '$lib/utils/rag';
 
 	let loaded = false;
@@ -800,4 +801,5 @@
 			{stopResponse}
 		/>
 	</div>
+	<Infobar />
 {/if}

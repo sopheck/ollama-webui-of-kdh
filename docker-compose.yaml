@@ -16,8 +16,9 @@ services:
       args:
         OLLAMA_API_BASE_URL: '/ollama/api'
       dockerfile: Dockerfile
-    image: ghcr.io/ollama-webui/ollama-webui:main
-    container_name: ollama-webui
+    image: localhost/kdh-ollama-webui:latest
+    #image: ghcr.io/ollama-webui/ollama-webui:main
+    container_name: kdh-ollama-webui
     volumes:
       - ollama-webui:/app/backend/data
     depends_on:

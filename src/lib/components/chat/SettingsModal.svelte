@@ -943,8 +943,8 @@
 									>
 										<option value="dark">Dark</option>
 										<option value="light">Light</option>
-										<option value="rose-pine dark">Rosé Pine</option>
-										<option value="rose-pine-dawn light">Rosé Pine Dawn</option>
+										<!--<option value="rose-pine dark">Rosé Pine</option>
+										<option value="rose-pine-dawn light">Rosé Pine Dawn</option>-->
 									</select>
 								</div>
 							</div>

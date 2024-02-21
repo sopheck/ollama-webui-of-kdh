@@ -18,7 +18,7 @@
 	let show = false;
 	let navElement;
 
-	let title: string = 'Ollama Web UI';
+	let title: string = 'KDH KI-Playground';
 	let search = '';
 
 	let chatDeleteId = null;
@@ -92,7 +92,7 @@
 			>
 				<div class="flex self-center">
 					<div class="self-center mr-3.5">
-						<img src="/ollama.png" class=" w-5 invert-[100%] rounded-full" />
+						<img src="/kdh-ollama.png" class=" w-5 invert-[100%] rounded-full" />
 					</div>
 
 					<div class=" self-center font-medium text-sm">New Chat</div>
@@ -203,6 +203,36 @@
 
 					<div class="flex self-center">
 						<div class=" self-center font-medium text-sm">Documents</div>
+					</div>
+				</button>
+			</div>
+
+			<div class="px-2.5 flex justify-center mb-1">
+				<button
+					class="flex-grow flex space-x-3 rounded-md px-3 py-2 hover:bg-gray-900 transition"
+					on:click={async () => {
+						goto('/critical-doc');
+					}}
+				>
+					<div class="self-center">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="w-4 h-4"
+						>
+							<path 
+							stroke-linecap="round" 
+							stroke-linejoin="round" 
+							d="M5 19V4c0-.6.4-1 1-1h12c.6 0 1 .4 1 1v13H7a2 2 0 0 0-2 2Zm0 0c0 1.1.9 2 2 2h12M9 3v14m7 0v4"/>
+
+						</svg>
+					</div>
+
+					<div class="flex self-center">
+						<div class=" self-center font-medium text-sm">Critical Doc (Draft)</div>
 					</div>
 				</button>
 			</div>

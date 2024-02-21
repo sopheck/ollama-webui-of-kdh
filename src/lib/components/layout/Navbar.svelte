@@ -8,7 +8,7 @@
 	import ShareChatModal from '../chat/ShareChatModal.svelte';
 
 	export let initNewChat: Function;
-	export let title: string = 'Ollama Web UI';
+	export let title: string = 'KDH KI-Playground';
 	export let shareEnabled: boolean = false;
 
 	export let tags = [];
@@ -83,9 +83,9 @@
 	id="nav"
 	class=" fixed py-2.5 top-0 flex flex-row justify-center bg-white/95 dark:bg-gray-800/90 dark:text-gray-200 backdrop-blur-xl w-screen z-30"
 >
-	<div class=" flex max-w-3xl w-full mx-auto px-3">
+	<div class="flex max-w-3xl w-full mx-auto">
 		<div class="flex items-center w-full max-w-full">
-			<div class="pr-2 self-start">
+			<div class="pr-3 self-start">
 				<button
 					id="new-chat-button"
 					class=" cursor-pointer p-1.5 flex dark:hover:bg-gray-700 rounded-lg transition"
@@ -110,7 +110,7 @@
 			</div>
 			<div class=" flex-1 self-center font-medium line-clamp-1">
 				<div>
-					{title != '' ? title : 'Ollama Web UI'}
+					{title != '' ? title : 'KDH KI-Playground'}
 				</div>
 			</div>
 

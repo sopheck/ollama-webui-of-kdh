@@ -1,6 +1,6 @@
 {
-	"name": "Ollama Web UI",
-	"short_name": "Ollama",
+	"name": "KDH Ollama Web UI",
+	"short_name": "KDH-Ollama",
 	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#343541",
@@ -9,8 +9,7 @@
 	"icons": [
 		{
 			"src": "/favicon.png",
-			"type": "image/png",
-			"sizes": "844x884"
+			"type": "image/png"
 		}
 	]
 }
