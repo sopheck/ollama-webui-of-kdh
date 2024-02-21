@@ -1,11 +1,13 @@
 import { dev } from '$app/environment';
 
+export const WEBUI_NAME = 'Open WebUI';
 export const WEBUI_BASE_URL = dev ? `http://${location.hostname}:8080` : ``;
 
 export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
 export const OLLAMA_API_BASE_URL = `${WEBUI_BASE_URL}/ollama/api`;
 export const OPENAI_API_BASE_URL = `${WEBUI_BASE_URL}/openai/api`;
 export const RAG_API_BASE_URL = `${WEBUI_BASE_URL}/rag/api/v1`;
+export const AUDIO_API_BASE_URL = `${WEBUI_BASE_URL}/audio/api/v1`;
 
 export const WEB_UI_VERSION = 'v1.0.0-alpha-static';
 
@@ -22,16 +24,63 @@ export const SUPPORTED_FILE_TYPE = [
 	'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 	'application/octet-stream',
 	'application/x-javascript',
-	'text/markdown'
+	'text/markdown',
+	'audio/mpeg',
+	'audio/wav'
 ];
 
 export const SUPPORTED_FILE_EXTENSIONS = [
-	'md', 'rst','go', 'py', 'java', 'sh', 'bat', 'ps1', 'cmd', 'js', 
-	'ts', 'css', 'cpp', 'hpp','h', 'c', 'cs', 'sql', 'log', 'ini',
-	'pl', 'pm', 'r', 'dart', 'dockerfile', 'env', 'php', 'hs',
-	'hsc', 'lua', 'nginxconf', 'conf', 'm', 'mm', 'plsql', 'perl',
-	'rb', 'rs', 'db2', 'scala', 'bash', 'swift', 'vue', 'svelte',
-	'doc','docx', 'pdf', 'csv', 'txt', 'xls', 'xlsx'
+	'md',
+	'rst',
+	'go',
+	'py',
+	'java',
+	'sh',
+	'bat',
+	'ps1',
+	'cmd',
+	'js',
+	'ts',
+	'css',
+	'cpp',
+	'hpp',
+	'h',
+	'c',
+	'cs',
+	'sql',
+	'log',
+	'ini',
+	'pl',
+	'pm',
+	'r',
+	'dart',
+	'dockerfile',
+	'env',
+	'php',
+	'hs',
+	'hsc',
+	'lua',
+	'nginxconf',
+	'conf',
+	'm',
+	'mm',
+	'plsql',
+	'perl',
+	'rb',
+	'rs',
+	'db2',
+	'scala',
+	'bash',
+	'swift',
+	'vue',
+	'svelte',
+	'doc',
+	'docx',
+	'pdf',
+	'csv',
+	'txt',
+	'xls',
+	'xlsx'
 ];
 
 // Source: https://kit.svelte.dev/docs/modules#$env-static-public

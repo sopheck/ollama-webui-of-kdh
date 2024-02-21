@@ -5,6 +5,8 @@ from secrets import token_bytes
 from base64 import b64encode
 from constants import ERROR_MESSAGES
 from pathlib import Path
+import json
+
 
 try:
     from dotenv import load_dotenv, find_dotenv
@@ -28,12 +30,34 @@ ENV = os.environ.get("ENV", "dev")
 DATA_DIR = str(Path(os.getenv("DATA_DIR", "./data")).resolve())
 FRONTEND_BUILD_DIR = str(Path(os.getenv("FRONTEND_BUILD_DIR", "../build")))
 
+try:
+    with open(f"{DATA_DIR}/config.json", "r") as f:
+        CONFIG_DATA = json.load(f)
+except:
+    CONFIG_DATA = {}
+
 ####################################
 # File Upload DIR
 ####################################
 
 UPLOAD_DIR = f"{DATA_DIR}/uploads"
 Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
+
+
+####################################
+# Cache DIR
+####################################
+
+CACHE_DIR = f"{DATA_DIR}/cache"
+Path(CACHE_DIR).mkdir(parents=True, exist_ok=True)
+
+
+####################################
+# Docs DIR
+####################################
+
+DOCS_DIR = f"{DATA_DIR}/docs"
+Path(DOCS_DIR).mkdir(parents=True, exist_ok=True)
 
 ####################################
 # OLLAMA_API_BASE_URL
@@ -62,10 +86,16 @@ if OPENAI_API_BASE_URL == "":
 # WEBUI
 ####################################
 
+ENABLE_SIGNUP = os.environ.get("ENABLE_SIGNUP", True)
 DEFAULT_MODELS = os.environ.get("DEFAULT_MODELS", None)
-DEFAULT_PROMPT_SUGGESTIONS = os.environ.get(
-    "DEFAULT_PROMPT_SUGGESTIONS",
-    [
+
+
+DEFAULT_PROMPT_SUGGESTIONS = (
+    CONFIG_DATA["ui"]["prompt_suggestions"]
+    if "ui" in CONFIG_DATA
+    and "prompt_suggestions" in CONFIG_DATA["ui"]
+    and type(CONFIG_DATA["ui"]["prompt_suggestions"]) is list
+    else [
         {
             "title": ["Help me study", "vocabulary for a college entrance exam"],
             "content": "Help me study vocabulary: write a sentence for me to fill in the blank, and I'll try to pick the correct option.",
@@ -82,14 +112,19 @@ DEFAULT_PROMPT_SUGGESTIONS = os.environ.get(
             "title": ["Show me a code snippet", "of a website's sticky header"],
             "content": "Show me a code snippet of a website's sticky header in CSS and JavaScript.",
         },
-    ],
+    ]
 )
+
+
+DEFAULT_USER_ROLE = "pending"
+USER_PERMISSIONS = {"chat": {"deletion": True}}
+
 
 ####################################
 # WEBUI_VERSION
 ####################################
 
-WEBUI_VERSION = os.environ.get("WEBUI_VERSION", "v1.0.0-alpha.61")
+WEBUI_VERSION = os.environ.get("WEBUI_VERSION", "v1.0.0-alpha.100")
 
 ####################################
 # WEBUI_AUTH (Required for security)
@@ -98,12 +133,17 @@ WEBUI_VERSION = os.environ.get("WEBUI_VERSION", "v1.0.0-alpha.61")
 WEBUI_AUTH = True
 
 ####################################
-# WEBUI_JWT_SECRET_KEY
+# WEBUI_SECRET_KEY
 ####################################
 
-WEBUI_JWT_SECRET_KEY = os.environ.get("WEBUI_JWT_SECRET_KEY", "t0p-s3cr3t")
+WEBUI_SECRET_KEY = os.environ.get(
+    "WEBUI_SECRET_KEY",
+    os.environ.get(
+        "WEBUI_JWT_SECRET_KEY", "t0p-s3cr3t"
+    ),  # DEPRECATED: remove at next major version
+)
 
-if WEBUI_AUTH and WEBUI_JWT_SECRET_KEY == "":
+if WEBUI_AUTH and WEBUI_SECRET_KEY == "":
     raise ValueError(ERROR_MESSAGES.ENV_VAR_NOT_FOUND)
 
 ####################################
@@ -111,9 +151,37 @@ if WEBUI_AUTH and WEBUI_JWT_SECRET_KEY == "":
 ####################################
 
 CHROMA_DATA_PATH = f"{DATA_DIR}/vector_db"
-EMBED_MODEL = "all-MiniLM-L6-v2"
+# this uses the model defined in the Dockerfile ENV variable. If you dont use docker or docker based deployments such as k8s, the default embedding model will be used (all-MiniLM-L6-v2)
+RAG_EMBEDDING_MODEL = os.environ.get("RAG_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+# device type ebbeding models - "cpu" (default), "cuda" (nvidia gpu required) or "mps" (apple silicon) - choosing this right can lead to better performance
+RAG_EMBEDDING_MODEL_DEVICE_TYPE = os.environ.get(
+    "RAG_EMBEDDING_MODEL_DEVICE_TYPE", "cpu"
+)
 CHROMA_CLIENT = chromadb.PersistentClient(
-    path=CHROMA_DATA_PATH, settings=Settings(allow_reset=True)
+    path=CHROMA_DATA_PATH,
+    settings=Settings(allow_reset=True, anonymized_telemetry=False),
 )
 CHUNK_SIZE = 1500
 CHUNK_OVERLAP = 100
+
+
+RAG_TEMPLATE = """Use the following context as your learned knowledge, inside <context></context> XML tags.
+<context>
+    [context]
+</context>
+
+When answer to user:
+- If you don't know, just say that you don't know.
+- If you don't know when you are not sure, ask for clarification.
+Avoid mentioning that you obtained the information from the context.
+And answer according to the language of the user's question.
+        
+Given the context information, answer the query.
+Query: [query]"""
+
+####################################
+# Transcribe
+####################################
+
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+WHISPER_MODEL_DIR = os.getenv("WHISPER_MODEL_DIR", f"{CACHE_DIR}/whisper/models")

@@ -17,11 +17,11 @@
 				show = false;
 			}}
 		>
-			Share to OllamaHub
+			Share to OpenWebUI Community
 		</button>-->
 
 		<div class="flex justify-center space-x-1 mt-1.5">
-			<!--<div class=" self-center text-gray-400 text-xs font-medium">or</div>-->
+			<div class=" self-center text-gray-400 text-xs font-medium">or</div>
 
 			<button
 				class=" self-center rounded-full text-xs font-medium text-gray-700 dark:text-gray-500 underline"

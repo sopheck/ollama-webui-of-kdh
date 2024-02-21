@@ -269,7 +269,7 @@
 									Trouble accessing Ollama?
 									<a
 										class=" text-black dark:text-white font-semibold underline"
-										href="https://github.com/ollama-webui/ollama-webui#troubleshooting"
+										href="https://github.com/open-webui/open-webui#troubleshooting"
 										target="_blank"
 									>
 										Click here for help.
@@ -352,7 +352,7 @@
 		{/if}
 
 		<div
-			class=" text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-800 min-h-screen overflow-auto flex flex-row"
+			class=" text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 min-h-screen overflow-auto flex flex-row"
 		>
 			<Sidebar />
 			<SettingsModal bind:show={$showSettings} />

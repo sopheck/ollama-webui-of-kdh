@@ -11,15 +11,28 @@ from apps.web.routers import (
     configs,
     utils,
 )
-from config import WEBUI_VERSION, WEBUI_AUTH, DEFAULT_MODELS, DEFAULT_PROMPT_SUGGESTIONS
+from config import (
+    WEBUI_VERSION,
+    WEBUI_AUTH,
+    DEFAULT_MODELS,
+    DEFAULT_PROMPT_SUGGESTIONS,
+    DEFAULT_USER_ROLE,
+    ENABLE_SIGNUP,
+    USER_PERMISSIONS,
+)
 
 app = FastAPI()
 
 origins = ["*"]
 
-app.state.ENABLE_SIGNUP = True
+app.state.ENABLE_SIGNUP = ENABLE_SIGNUP
+app.state.JWT_EXPIRES_IN = "-1"
+
 app.state.DEFAULT_MODELS = DEFAULT_MODELS
 app.state.DEFAULT_PROMPT_SUGGESTIONS = DEFAULT_PROMPT_SUGGESTIONS
+app.state.DEFAULT_USER_ROLE = DEFAULT_USER_ROLE
+app.state.USER_PERMISSIONS = USER_PERMISSIONS
+
 
 app.add_middleware(
     CORSMiddleware,

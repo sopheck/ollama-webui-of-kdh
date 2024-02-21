@@ -10,6 +10,7 @@
 	import '../app.css';
 	import '../tailwind.css';
 	import 'tippy.js/dist/tippy.css';
+	import { WEBUI_NAME } from '$lib/constants';
 
 	let loaded = false;
 

@@ -2,7 +2,7 @@
 	import toast from 'svelte-french-toast';
 	import { onMount, tick } from 'svelte';
 	import { settings } from '$lib/stores';
-	import { calculateSHA256, findWordIndices } from '$lib/utils';
+	import { blobToFile, calculateSHA256, findWordIndices } from '$lib/utils';
 
 	import Prompts from './MessageInput/PromptCommands.svelte';
 	import Suggestions from './MessageInput/Suggestions.svelte';
@@ -11,6 +11,7 @@
 	import { SUPPORTED_FILE_TYPE, SUPPORTED_FILE_EXTENSIONS } from '$lib/constants';
 	import Documents from './MessageInput/Documents.svelte';
 	import Models from './MessageInput/Models.svelte';
+	import { transcribeAudio } from '$lib/apis/audio';
 
 	export let submitPrompt: Function;
 	export let stopResponse: Function;
@@ -34,7 +35,6 @@
 
 	export let fileUploadEnabled = true;
 	export let speechRecognitionEnabled = true;
-	export let speechRecognitionListening = false;
 
 	export let prompt = '';
 	export let messages = [];
@@ -50,62 +50,175 @@
 		}
 	}
 
+	let mediaRecorder;
+	let audioChunks = [];
+	let isRecording = false;
+	const MIN_DECIBELS = -45;
+
+	const scrollToBottom = () => {
+		const element = document.getElementById('messages-container');
+		element.scrollTop = element.scrollHeight;
+	};
+
+	const startRecording = async () => {
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		mediaRecorder = new MediaRecorder(stream);
+		mediaRecorder.onstart = () => {
+			isRecording = true;
+			console.log('Recording started');
+		};
+		mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+		mediaRecorder.onstop = async () => {
+			isRecording = false;
+			console.log('Recording stopped');
+
+			// Create a blob from the audio chunks
+			const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+
+			const file = blobToFile(audioBlob, 'recording.wav');
+
+			const res = await transcribeAudio(localStorage.token, file).catch((error) => {
+				toast.error(error);
+				return null;
+			});
+
+			if (res) {
+				prompt = res.text;
+				await tick();
+
+				const inputElement = document.getElementById('chat-textarea');
+				inputElement?.focus();
+
+				if (prompt !== '' && $settings?.speechAutoSend === true) {
+					submitPrompt(prompt, user);
+				}
+			}
+
+			// saveRecording(audioBlob);
+			audioChunks = [];
+		};
+
+		// Start recording
+		mediaRecorder.start();
+
+		// Monitor silence
+		monitorSilence(stream);
+	};
+
+	const monitorSilence = (stream) => {
+		const audioContext = new AudioContext();
+		const audioStreamSource = audioContext.createMediaStreamSource(stream);
+		const analyser = audioContext.createAnalyser();
+		analyser.minDecibels = MIN_DECIBELS;
+		audioStreamSource.connect(analyser);
+
+		const bufferLength = analyser.frequencyBinCount;
+		const domainData = new Uint8Array(bufferLength);
+
+		let lastSoundTime = Date.now();
+
+		const detectSound = () => {
+			analyser.getByteFrequencyData(domainData);
+
+			if (domainData.some((value) => value > 0)) {
+				lastSoundTime = Date.now();
+			}
+
+			if (isRecording && Date.now() - lastSoundTime > 3000) {
+				mediaRecorder.stop();
+				audioContext.close();
+				return;
+			}
+
+			window.requestAnimationFrame(detectSound);
+		};
+
+		window.requestAnimationFrame(detectSound);
+	};
+
+	const saveRecording = (blob) => {
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		document.body.appendChild(a);
+		a.style = 'display: none';
+		a.href = url;
+		a.download = 'recording.wav';
+		a.click();
+		window.URL.revokeObjectURL(url);
+	};
+
 	const speechRecognitionHandler = () => {
 		// Check if SpeechRecognition is supported
 
-		if (speechRecognitionListening) {
-			speechRecognition.stop();
+		if (isRecording) {
+			if (speechRecognition) {
+				speechRecognition.stop();
+			}
+
+			if (mediaRecorder) {
+				mediaRecorder.stop();
+			}
 		} else {
-			if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-				// Create a SpeechRecognition object
-				speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+			isRecording = true;
 
-				// Set continuous to true for continuous recognition
-				speechRecognition.continuous = true;
-
-				// Set the timeout for turning off the recognition after inactivity (in milliseconds)
-				const inactivityTimeout = 3000; // 3 seconds
-
-				let timeoutId;
-				// Start recognition
-				speechRecognition.start();
-				speechRecognitionListening = true;
-
-				// Event triggered when speech is recognized
-				speechRecognition.onresult = function (event) {
-					// Clear the inactivity timeout
-					clearTimeout(timeoutId);
-
-					// Handle recognized speech
-					console.log(event);
-					const transcript = event.results[Object.keys(event.results).length - 1][0].transcript;
-					prompt = `${prompt}${transcript}`;
-
-					// Restart the inactivity timeout
-					timeoutId = setTimeout(() => {
-						console.log('Speech recognition turned off due to inactivity.');
-						speechRecognition.stop();
-					}, inactivityTimeout);
-				};
-
-				// Event triggered when recognition is ended
-				speechRecognition.onend = function () {
-					// Restart recognition after it ends
-					console.log('recognition ended');
-					speechRecognitionListening = false;
-					if (prompt !== '' && $settings?.speechAutoSend === true) {
-						submitPrompt(prompt, user);
-					}
-				};
-
-				// Event triggered when an error occurs
-				speechRecognition.onerror = function (event) {
-					console.log(event);
-					toast.error(`Speech recognition error: ${event.error}`);
-					speechRecognitionListening = false;
-				};
+			if ($settings?.audio?.STTEngine ?? '' !== '') {
+				startRecording();
 			} else {
-				toast.error('SpeechRecognition API is not supported in this browser.');
+				if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+					// Create a SpeechRecognition object
+					speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+					// Set continuous to true for continuous recognition
+					speechRecognition.continuous = true;
+
+					// Set the timeout for turning off the recognition after inactivity (in milliseconds)
+					const inactivityTimeout = 3000; // 3 seconds
+
+					let timeoutId;
+					// Start recognition
+					speechRecognition.start();
+
+					// Event triggered when speech is recognized
+					speechRecognition.onresult = async (event) => {
+						// Clear the inactivity timeout
+						clearTimeout(timeoutId);
+
+						// Handle recognized speech
+						console.log(event);
+						const transcript = event.results[Object.keys(event.results).length - 1][0].transcript;
+
+						prompt = `${prompt}${transcript}`;
+
+						await tick();
+						const inputElement = document.getElementById('chat-textarea');
+						inputElement?.focus();
+
+						// Restart the inactivity timeout
+						timeoutId = setTimeout(() => {
+							console.log('Speech recognition turned off due to inactivity.');
+							speechRecognition.stop();
+						}, inactivityTimeout);
+					};
+
+					// Event triggered when recognition is ended
+					speechRecognition.onend = function () {
+						// Restart recognition after it ends
+						console.log('recognition ended');
+						isRecording = false;
+						if (prompt !== '' && $settings?.speechAutoSend === true) {
+							submitPrompt(prompt, user);
+						}
+					};
+
+					// Event triggered when an error occurs
+					speechRecognition.onerror = function (event) {
+						console.log(event);
+						toast.error(`Speech recognition error: ${event.error}`);
+						isRecording = false;
+					};
+				} else {
+					toast.error('SpeechRecognition API is not supported in this browser.');
+				}
 			}
 		}
 	};
@@ -123,6 +236,20 @@
 
 		try {
 			files = [...files, doc];
+
+			if (['audio/mpeg', 'audio/wav'].includes(file['type'])) {
+				const res = await transcribeAudio(localStorage.token, file).catch((error) => {
+					toast.error(error);
+					return null;
+				});
+
+				if (res) {
+					console.log(res);
+					const blob = new Blob([res.text], { type: 'text/plain' });
+					file = blobToFile(blob, `${file.name}.txt`);
+				}
+			}
+
 			const res = await uploadDocToVectorDB(localStorage.token, '', file);
 
 			if (res) {
@@ -249,17 +376,17 @@
 	</div>
 {/if}
 
-<div class="fixed bottom-0 w-full">
-	<div class="px-2.5 pt-2.5 -mb-0.5 mx-auto inset-x-0 bg-transparent flex justify-center">
+<div class="w-full">
+	<div class="px-2.5 -mb-0.5 mx-auto inset-x-0 bg-transparent flex justify-center">
 		<div class="flex flex-col max-w-3xl w-full">
-			<div>
+			<div class="relative">
 				{#if autoScroll === false && messages.length > 0}
-					<div class=" flex justify-center mb-4">
+					<div class=" absolute -top-12 left-0 right-0 flex justify-center">
 						<button
 							class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full"
 							on:click={() => {
 								autoScroll = true;
-								window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+								scrollToBottom();
 							}}
 						>
 							<svg
@@ -279,7 +406,7 @@
 				{/if}
 			</div>
 
-			<div class="w-full">
+			<div class="w-full relative">
 				{#if prompt.charAt(0) === '/'}
 					<Prompts bind:this={promptsElement} bind:prompt />
 				{:else if prompt.charAt(0) === '#'}
@@ -295,7 +422,7 @@
 							files = [
 								...files,
 								{
-									type: 'doc',
+									type: e?.detail?.type ?? 'doc',
 									...e.detail,
 									upload_status: true
 								}
@@ -310,15 +437,17 @@
 						bind:chatInputPlaceholder
 						{messages}
 					/>
-				{:else if messages.length == 0 && suggestionPrompts.length !== 0}
+				{/if}
+
+				{#if messages.length == 0 && suggestionPrompts.length !== 0}
 					<Suggestions {suggestionPrompts} {submitPrompt} />
 				{/if}
 			</div>
 		</div>
 	</div>
-	<div class="bg-white dark:bg-gray-800">
-		<div class="max-w-3xl px-2.5 -mb-0.5 mx-auto inset-x-0">
-			<div class="bg-gradient-to-t from-white dark:from-gray-800 from-40% pb-2">
+	<div class="bg-white dark:bg-gray-900">
+		<div class="max-w-3xl px-2.5 mx-auto inset-x-0">
+			<div class=" pb-2">
 				<input
 					bind:this={filesInputElement}
 					bind:files={inputFiles}
@@ -361,7 +490,7 @@
 					}}
 				/>
 				<form
-					class=" flex flex-col relative w-full rounded-xl border dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-gray-100"
+					class=" flex flex-col relative w-full rounded-xl border dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-gray-100"
 					on:submit|preventDefault={() => {
 						submitPrompt(prompt, user);
 					}}
@@ -446,6 +575,34 @@
 												<div class=" text-gray-500 text-sm">Document</div>
 											</div>
 										</div>
+									{:else if file.type === 'collection'}
+										<div
+											class="h-16 w-[15rem] flex items-center space-x-3 px-2.5 dark:bg-gray-600 rounded-xl border border-gray-200 dark:border-none"
+										>
+											<div class="p-2.5 bg-red-400 text-white rounded-lg">
+												<svg
+													xmlns="http://www.w3.org/2000/svg"
+													viewBox="0 0 24 24"
+													fill="currentColor"
+													class="w-6 h-6"
+												>
+													<path
+														d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 0 1 3.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0 1 21 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 0 1 7.5 16.125V3.375Z"
+													/>
+													<path
+														d="M15 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 17.25 7.5h-1.875A.375.375 0 0 1 15 7.125V5.25ZM4.875 6H6v10.125A3.375 3.375 0 0 0 9.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V7.875C3 6.839 3.84 6 4.875 6Z"
+													/>
+												</svg>
+											</div>
+
+											<div class="flex flex-col justify-center -space-y-0.5">
+												<div class=" dark:text-gray-100 text-sm font-medium line-clamp-1">
+													{file?.title ?? `#${file.name}`}
+												</div>
+
+												<div class=" text-gray-500 text-sm">Collection</div>
+											</div>
+										</div>
 									{/if}
 
 									<div class=" absolute -top-1 -right-1">
@@ -502,12 +659,12 @@
 
 						<textarea
 							id="chat-textarea"
-							class=" dark:bg-gray-800 dark:text-gray-100 outline-none w-full py-3 px-2 {fileUploadEnabled
+							class=" dark:bg-gray-900 dark:text-gray-100 outline-none w-full py-3 px-2 {fileUploadEnabled
 								? ''
 								: ' pl-4'} rounded-xl resize-none h-[48px]"
 							placeholder={chatInputPlaceholder !== ''
 								? chatInputPlaceholder
-								: speechRecognitionListening
+								: isRecording
 								? 'Listening...'
 								: 'Send a message'}
 							bind:value={prompt}
@@ -616,6 +773,10 @@
 								e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
 								user = null;
 							}}
+							on:focus={(e) => {
+								e.target.style.height = '';
+								e.target.style.height = Math.min(e.target.scrollHeight, 200) + 'px';
+							}}
 							on:paste={(e) => {
 								const clipboardData = e.clipboardData || window.clipboardData;
 
@@ -646,13 +807,14 @@
 							{#if messages.length == 0 || messages.at(-1).done == true}
 								{#if speechRecognitionEnabled}
 									<button
+										id="voice-input-button"
 										class=" text-gray-600 dark:text-gray-300 transition rounded-lg p-1.5 mr-0.5 self-center"
 										type="button"
 										on:click={() => {
 											speechRecognitionHandler();
 										}}
 									>
-										{#if speechRecognitionListening}
+										{#if isRecording}
 											<svg
 												class=" w-5 h-5 translate-y-[0.5px]"
 												fill="currentColor"
@@ -707,19 +869,19 @@
 								<button
 									class="{prompt !== ''
 										? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
-										: 'text-white bg-gray-100 dark:text-gray-800 dark:bg-gray-600 disabled'} transition rounded-lg p-1 mr-0.5 w-7 h-7 self-center"
+										: 'text-white bg-gray-100 dark:text-gray-900 dark:bg-gray-800 disabled'} transition rounded-lg p-1 mr-0.5 w-7 h-7 self-center"
 									type="submit"
 									disabled={prompt === ''}
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 20 20"
+										viewBox="0 0 16 16"
 										fill="currentColor"
-										class="w-5 h-5"
+										class="w-4.5 h-4.5 mx-auto"
 									>
 										<path
 											fill-rule="evenodd"
-											d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+											d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
 											clip-rule="evenodd"
 										/>
 									</svg>
