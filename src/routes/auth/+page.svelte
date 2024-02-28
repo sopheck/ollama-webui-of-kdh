@@ -177,7 +177,7 @@
 							<path fill-rule="evenodd" d="M2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0Zm9.4-5.5a1 1 0 1 0 0 2 1 1 0 1 0 0-2ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4c0-.6-.4-1-1-1h-2Z" clip-rule="evenodd"/>
 						  </svg>
 						  
-						<span class="ml-2">Der KI-Playground ist ein Service der Kompetenzwerkstatt Digital Humanities der Universitätsbibliothek an der Humboldt-Universität zu Berlin. Dieser wird zunächst ausschließlich im Rahmen des KDH-Workshops "Generative KI" bereitgestellt. Die Bereitstellung endet mit dem Workshop-Abschluss am 04.03.2024.</span>
+						<span class="ml-2">Der KI-Playground ist ein Service der Kompetenzwerkstatt Digital Humanities der Universitätsbibliothek an der Humboldt-Universität zu Berlin. Dieser wird zunächst ausschließlich im Rahmen des KDH-Workshops "Generative KI" bereitgestellt.</span>
 						</div>
 				</div>
 			</div>

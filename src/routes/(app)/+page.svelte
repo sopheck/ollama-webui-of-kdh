@@ -796,7 +796,8 @@
 </script>
 
 <div class="h-screen max-h-[100dvh] w-full flex flex-col">
-	<Infobar />
+	<!-- Commented out for now since Infobar is not responsible -->
+	<!--<Infobar />-->
 	<Navbar {title} shareEnabled={messages.length > 0} {initNewChat} {tags} {addTag} {deleteTag} />
 	<div class="flex flex-col flex-auto">
 		<div
