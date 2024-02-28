@@ -298,3 +298,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# custom
+GITHUB_TOKEN.md

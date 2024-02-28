@@ -2,6 +2,11 @@
 
 FROM node:alpine as build
 
+LABEL org.opencontainers.image.source=https://github.com/sopheck/open-webui-of-kdh
+LABEL org.opencontainers.image.description="KDH KI-Playground container image based on Open WebUI"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.authors="Sophie Eckenstaler"
+
 WORKDIR /app
 
 # wget embedding model weight from alpine (does not exist from slim-buster)
