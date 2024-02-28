@@ -37,6 +37,8 @@
 	import Navbar from '$lib/components/layout/Navbar.svelte';
 	import Infobar from '$lib/components/layout/Infobar.svelte';
 	import { RAGTemplate } from '$lib/utils/rag';
+	import { LITELLM_API_BASE_URL, OPENAI_API_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	let stopResponseFlag = false;
 	let autoScroll = true;
@@ -103,13 +105,8 @@
 			await cancelChatCompletion(localStorage.token, currentRequestId);
 			currentRequestId = null;
 		}
-
 		window.history.replaceState(history.state, '', `/`);
-
-		console.log('initNewChat');
-
 		await chatId.set('');
-		console.log($chatId);
 
 		autoScroll = true;
 
@@ -119,8 +116,6 @@
 			messages: {},
 			currentId: null
 		};
-
-		console.log($config);
 
 		if ($page.url.searchParams.get('models')) {
 			selectedModels = $page.url.searchParams.get('models')?.split(',');
@@ -132,10 +127,17 @@
 			selectedModels = [''];
 		}
 
+		selectedModels = selectedModels.map((modelId) =>
+			$models.map((m) => m.id).includes(modelId) ? modelId : ''
+		);
+
 		let _settings = JSON.parse(localStorage.getItem('settings') ?? '{}');
 		settings.set({
 			..._settings
 		});
+
+		const chatInput = document.getElementById('chat-textarea');
+		setTimeout(() => chatInput?.focus(), 0);
 	};
 
 	const scrollToBottom = () => {
@@ -149,6 +151,10 @@
 
 	const submitPrompt = async (userPrompt, _user = null) => {
 		console.log('submitPrompt', $chatId);
+
+		selectedModels = selectedModels.map((modelId) =>
+			$models.map((m) => m.id).includes(modelId) ? modelId : ''
+		);
 
 		if (selectedModels.includes('')) {
 			toast.error('Model not selected');
@@ -278,40 +284,41 @@
 		}
 
 		await Promise.all(
-			selectedModels.map(async (model) => {
-				console.log(model);
-				const modelTag = $models.filter((m) => m.name === model).at(0);
+			selectedModels.map(async (modelId) => {
+				const model = $models.filter((m) => m.id === modelId).at(0);
 
-				// Create response message
-				let responseMessageId = uuidv4();
-				let responseMessage = {
-					parentId: parentId,
-					id: responseMessageId,
-					childrenIds: [],
-					role: 'assistant',
-					content: '',
-					model: model,
-					timestamp: Math.floor(Date.now() / 1000) // Unix epoch
-				};
+				if (model) {
+					// Create response message
+					let responseMessageId = uuidv4();
+					let responseMessage = {
+						parentId: parentId,
+						id: responseMessageId,
+						childrenIds: [],
+						role: 'assistant',
+						content: '',
+						model: model.id,
+						timestamp: Math.floor(Date.now() / 1000) // Unix epoch
+					};
 
-				// Add message to history and Set currentId to messageId
-				history.messages[responseMessageId] = responseMessage;
-				history.currentId = responseMessageId;
+					// Add message to history and Set currentId to messageId
+					history.messages[responseMessageId] = responseMessage;
+					history.currentId = responseMessageId;
 
-				// Append messageId to childrenIds of parent message
-				if (parentId !== null) {
-					history.messages[parentId].childrenIds = [
-						...history.messages[parentId].childrenIds,
-						responseMessageId
-					];
-				}
+					// Append messageId to childrenIds of parent message
+					if (parentId !== null) {
+						history.messages[parentId].childrenIds = [
+							...history.messages[parentId].childrenIds,
+							responseMessageId
+						];
+					}
 
-				if (modelTag?.external) {
-					await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
-				} else if (modelTag) {
-					await sendPromptOllama(model, prompt, responseMessageId, _chatId);
+					if (model?.external) {
+						await sendPromptOpenAI(model, prompt, responseMessageId, _chatId);
+					} else if (model) {
+						await sendPromptOllama(model, prompt, responseMessageId, _chatId);
+					}
 				} else {
-					toast.error(`Model ${model} not found`);
+					toast.error(`Model ${modelId} not found`);
 				}
 			})
 		);
@@ -320,6 +327,7 @@
 	};
 
 	const sendPromptOllama = async (model, userPrompt, responseMessageId, _chatId) => {
+		model = model.id;
 		const responseMessage = history.messages[responseMessageId];
 
 		// Wait until history/message have been updated
@@ -335,7 +343,7 @@
 						content: $settings.system
 				  }
 				: undefined,
-			...messages
+			...messages.filter((message) => !message.deleted)
 		]
 			.filter((message) => message)
 			.map((message, idx, arr) => ({
@@ -453,7 +461,7 @@
 												: `${model}`,
 											{
 												body: responseMessage.content,
-												icon: selectedModelfile?.imageUrl ?? '/favicon.png'
+												icon: selectedModelfile?.imageUrl ?? `${WEBUI_BASE_URL}/static/favicon.png`
 											}
 										);
 									}
@@ -531,54 +539,58 @@
 		const responseMessage = history.messages[responseMessageId];
 		scrollToBottom();
 
-		const res = await generateOpenAIChatCompletion(localStorage.token, {
-			model: model,
-			stream: true,
-			messages: [
-				$settings.system
-					? {
-							role: 'system',
-							content: $settings.system
-					  }
-					: undefined,
-				...messages
-			]
-				.filter((message) => message)
-				.map((message, idx, arr) => ({
-					role: message.role,
-					...(message.files?.filter((file) => file.type === 'image').length > 0 ?? false
+		const res = await generateOpenAIChatCompletion(
+			localStorage.token,
+			{
+				model: model.id,
+				stream: true,
+				messages: [
+					$settings.system
 						? {
-								content: [
-									{
-										type: 'text',
-										text:
-											arr.length - 1 !== idx
-												? message.content
-												: message?.raContent ?? message.content
-									},
-									...message.files
-										.filter((file) => file.type === 'image')
-										.map((file) => ({
-											type: 'image_url',
-											image_url: {
-												url: file.url
-											}
-										}))
-								]
+								role: 'system',
+								content: $settings.system
 						  }
-						: {
-								content:
-									arr.length - 1 !== idx ? message.content : message?.raContent ?? message.content
-						  })
-				})),
-			seed: $settings?.options?.seed ?? undefined,
-			stop: $settings?.options?.stop ?? undefined,
-			temperature: $settings?.options?.temperature ?? undefined,
-			top_p: $settings?.options?.top_p ?? undefined,
-			num_ctx: $settings?.options?.num_ctx ?? undefined,
-			frequency_penalty: $settings?.options?.repeat_penalty ?? undefined,
-			max_tokens: $settings?.options?.num_predict ?? undefined
-		});
+						: undefined,
+					...messages.filter((message) => !message.deleted)
+				]
+					.filter((message) => message)
+					.map((message, idx, arr) => ({
+						role: message.role,
+						...(message.files?.filter((file) => file.type === 'image').length > 0 ?? false
+							? {
+									content: [
+										{
+											type: 'text',
+											text:
+												arr.length - 1 !== idx
+													? message.content
+													: message?.raContent ?? message.content
+										},
+										...message.files
+											.filter((file) => file.type === 'image')
+											.map((file) => ({
+												type: 'image_url',
+												image_url: {
+													url: file.url
+												}
+											}))
+									]
+							  }
+							: {
+									content:
+										arr.length - 1 !== idx ? message.content : message?.raContent ?? message.content
+							  })
+					})),
+				seed: $settings?.options?.seed ?? undefined,
+				stop: $settings?.options?.stop ?? undefined,
+				temperature: $settings?.options?.temperature ?? undefined,
+				top_p: $settings?.options?.top_p ?? undefined,
+				num_ctx: $settings?.options?.num_ctx ?? undefined,
+				frequency_penalty: $settings?.options?.repeat_penalty ?? undefined,
+				max_tokens: $settings?.options?.num_predict ?? undefined
+			},
+			model.source === 'litellm' ? `${LITELLM_API_BASE_URL}/v1` : `${OPENAI_API_BASE_URL}`
+		);
 
 		if (res && res.ok) {
 			const reader = res.body
@@ -623,7 +635,7 @@
 				if ($settings.notificationEnabled && !document.hasFocus()) {
 					const notification = new Notification(`OpenAI ${model}`, {
 						body: responseMessage.content,
-						icon: '/favicon.png'
+						icon: `${WEBUI_BASE_URL}/static/favicon.png`
 					});
 				}
 
@@ -717,25 +729,26 @@
 			responseMessage.done = false;
 			await tick();
 
-			const modelTag = $models.filter((m) => m.name === responseMessage.model).at(0);
+			const model = $models.filter((m) => m.id === responseMessage.model).at(0);
 
-			if (modelTag?.external) {
-				await sendPromptOpenAI(
-					responseMessage.model,
-					history.messages[responseMessage.parentId].content,
-					responseMessage.id,
-					_chatId
-				);
-			} else if (modelTag) {
-				await sendPromptOllama(
-					responseMessage.model,
-					history.messages[responseMessage.parentId].content,
-					responseMessage.id,
-					_chatId
-				);
-			} else {
-				toast.error(`Model ${model} not found`);
+			if (model) {
+				if (model?.external) {
+					await sendPromptOpenAI(
+						model,
+						history.messages[responseMessage.parentId].content,
+						responseMessage.id,
+						_chatId
+					);
+				} else
+					await sendPromptOllama(
+						model,
+						history.messages[responseMessage.parentId].content,
+						responseMessage.id,
+						_chatId
+					);
 			}
+		} else {
+			toast.error(`Model ${modelId} not found`);
 		}
 	};
 
@@ -743,6 +756,8 @@
 		if ($settings.titleAutoGenerate ?? true) {
 			const title = await generateTitle(
 				localStorage.token,
+				$settings?.titleGenerationPrompt ??
+					"Create a concise, 3-5 word phrase as a header for the following query, strictly adhering to the 3-5 word limit and avoiding the use of the word 'title': {{prompt}}",
 				$settings?.titleAutoGenerateModel ?? selectedModels[0],
 				userPrompt
 			);

@@ -4,14 +4,17 @@
 	const { saveAs } = fileSaver;
 
 	import { getChatById } from '$lib/apis/chats';
-	import { chatId, modelfiles, settings } from '$lib/stores';
+	import { WEBUI_NAME, chatId, modelfiles, settings } from '$lib/stores';
 	import ShareChatModal from '../chat/ShareChatModal.svelte';
 	import TagInput from '../common/Tags/TagInput.svelte';
 	import Tags from '../common/Tags.svelte';
-	import { WEBUI_NAME } from '$lib/constants';
 
 	export let initNewChat: Function;
+<<<<<<< HEAD
 	export let title: string = 'KDH KI-Playground';
+=======
+	export let title: string = $WEBUI_NAME;
+>>>>>>> main
 	export let shareEnabled: boolean = false;
 
 	export let tags = [];
@@ -102,7 +105,11 @@
 			</div>
 			<div class=" flex-1 self-center font-medium line-clamp-1">
 				<div>
+<<<<<<< HEAD
 					{title != '' ? title : 'KDH KI-Playground'}
+=======
+					{title != '' ? title : $WEBUI_NAME}
+>>>>>>> main
 				</div>
 			</div>
 

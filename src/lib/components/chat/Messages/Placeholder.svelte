@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { user } from '$lib/stores';
 	import { onMount } from 'svelte';
 
 	export let models = [];
@@ -27,18 +29,30 @@
 					>
 						{#if model in modelfiles}
 							<img
+<<<<<<< HEAD
 								src={modelfiles[model]?.imageUrl ?? '/kdh-ollama-dark.png'}
+=======
+								src={modelfiles[model]?.imageUrl ?? `${WEBUI_BASE_URL}/static/favicon.png`}
+>>>>>>> main
 								alt="modelfile"
 								class=" w-14 rounded-full border-[1px] border-gray-200 dark:border-none"
 								draggable="false"
 							/>
 						{:else}
 							<img
+<<<<<<< HEAD
 								src={models.length === 1 ? '/kdh-ollama.png' : 'kdh-ollama-dark.png'}
 								class=" w-20 mb-2 {models.length === 1
 									? 'invert-[10%] dark:invert-[100%]'
 									: 'border-[5px] border-white dark:border-gray-800'}  rounded-full"
 								alt="ollama"
+=======
+								src={models.length === 1
+									? `${WEBUI_BASE_URL}/static/favicon.png`
+									: `${WEBUI_BASE_URL}/static/favicon.png`}
+								class=" w-14 rounded-full border-[1px] border-gray-200 dark:border-none"
+								alt="logo"
+>>>>>>> main
 								draggable="false"
 							/>
 						{/if}
@@ -46,7 +60,7 @@
 				{/each}
 			</div>
 		</div>
-		<div class=" mt-2 text-2xl text-gray-800 dark:text-gray-100 font-semibold">
+		<div class=" mt-2 mb-5 text-2xl text-gray-800 dark:text-gray-100 font-semibold">
 			{#if modelfile}
 				<span class=" capitalize">
 					{modelfile.title}
@@ -62,7 +76,9 @@
 					</div>
 				{/if}
 			{:else}
-				How can I help you today?
+				<div class=" line-clamp-1">Hello, {$user.name}</div>
+
+				<div>How can I help you today?</div>
 			{/if}
 		</div>
 	</div>

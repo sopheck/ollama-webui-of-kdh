@@ -1,17 +1,19 @@
 <script lang="ts">
 	import toast from 'svelte-french-toast';
 	import { openDB, deleteDB } from 'idb';
-	import { onMount, tick } from 'svelte';
-	import { goto } from '$app/navigation';
-
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
+
+	import { onMount, tick } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	import { getOllamaModels, getOllamaVersion } from '$lib/apis/ollama';
 	import { getModelfiles } from '$lib/apis/modelfiles';
 	import { getPrompts } from '$lib/apis/prompts';
-
 	import { getOpenAIModels } from '$lib/apis/openai';
+	import { getLiteLLMModels } from '$lib/apis/litellm';
+	import { getDocs } from '$lib/apis/documents';
+	import { getAllChatTags } from '$lib/apis/chats';
 
 	import {
 		user,
@@ -21,16 +23,17 @@
 		modelfiles,
 		prompts,
 		documents,
-		tags
+		tags,
+		showChangelog,
+		config
 	} from '$lib/stores';
 	import { REQUIRED_OLLAMA_VERSION, WEBUI_API_BASE_URL } from '$lib/constants';
+	import { compareVersion } from '$lib/utils';
 
 	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
-	import { checkVersion } from '$lib/utils';
 	import ShortcutsModal from '$lib/components/chat/ShortcutsModal.svelte';
-	import { getDocs } from '$lib/apis/documents';
-	import { getAllChatTags } from '$lib/apis/chats';
+	import ChangelogModal from '$lib/components/ChangelogModal.svelte';
 	import Infobar from '../../lib/components/layout/Infobar.svelte';
 
 	let ollamaVersion = '';
@@ -42,23 +45,24 @@
 	let showShortcuts = false;
 
 	const getModels = async () => {
-		let models = [];
-		models.push(
-			...(await getOllamaModels(localStorage.token).catch((error) => {
-				toast.error(error);
-				return [];
-			}))
-		);
+		let models = await Promise.all([
+			await getOllamaModels(localStorage.token).catch((error) => {
+				console.log(error);
+				return null;
+			}),
+			await getOpenAIModels(localStorage.token).catch((error) => {
+				console.log(error);
+				return null;
+			}),
+			await getLiteLLMModels(localStorage.token).catch((error) => {
+				console.log(error);
+				return null;
+			})
+		]);
 
-		// $settings.OPENAI_API_BASE_URL ?? 'https://api.openai.com/v1',
-		// 		$settings.OPENAI_API_KEY
-
-		const openAIModels = await getOpenAIModels(localStorage.token).catch((error) => {
-			console.log(error);
-			return null;
-		});
-
-		models.push(...(openAIModels ? [{ name: 'hr' }, ...openAIModels] : []));
+		models = models
+			.filter((models) => models)
+			.reduce((a, e, i, arr) => a.concat(e, ...(i < arr.length - 1 ? [{ name: 'hr' }] : [])), []);
 
 		return models;
 	};
@@ -73,7 +77,7 @@
 		ollamaVersion = version;
 
 		console.log(ollamaVersion);
-		if (checkVersion(REQUIRED_OLLAMA_VERSION, ollamaVersion)) {
+		if (compareVersion(REQUIRED_OLLAMA_VERSION, ollamaVersion)) {
 			toast.error(`Ollama Version: ${ollamaVersion !== '' ? ollamaVersion : 'Not Detected'}`);
 		}
 	};
@@ -104,6 +108,10 @@
 			}
 
 			console.log();
+
+			await models.set(await getModels());
+			await tick();
+
 			await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 
 			await modelfiles.set(await getModelfiles(localStorage.token));
@@ -115,8 +123,6 @@
 				// should fetch models
 				await models.set(await getModels());
 			});
-
-			await setOllamaVersion();
 
 			document.addEventListener('keydown', function (event) {
 				const isCtrlPressed = event.ctrlKey || event.metaKey; // metaKey is for Cmd key on Mac
@@ -183,6 +189,10 @@
 				}
 			});
 
+			if ($user.role === 'admin') {
+				showChangelog.set(localStorage.version !== $config.version);
+			}
+
 			await tick();
 		}
 
@@ -239,60 +249,6 @@
 										localStorage.removeItem('token');
 										location.href = '/auth';
 									}}>Sign Out</button
-								>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		{:else if checkVersion(REQUIRED_OLLAMA_VERSION, ollamaVersion ?? '0')}
-			<div class="fixed w-full h-full flex z-50">
-				<div
-					class="absolute w-full h-full backdrop-blur-md bg-white/20 dark:bg-gray-900/50 flex justify-center"
-				>
-					<div class="m-auto pb-44 flex flex-col justify-center">
-						<div class="max-w-md">
-							<div class="text-center dark:text-white text-2xl font-medium z-50">
-								Connection Issue or Update Needed
-							</div>
-
-							<div class=" mt-4 text-center text-sm dark:text-gray-200 w-full">
-								Oops! It seems like your Ollama needs a little attention. <br
-									class=" hidden sm:flex"
-								/>We've detected either a connection hiccup or observed that you're using an older
-								version. Ensure you're on the latest Ollama version
-								<br class=" hidden sm:flex" />(version
-								<span class=" dark:text-white font-medium">{REQUIRED_OLLAMA_VERSION} or higher</span
-								>) or check your connection.
-
-								<div class="mt-1 text-sm">
-									Trouble accessing Ollama?
-									<a
-										class=" text-black dark:text-white font-semibold underline"
-										href="https://github.com/open-webui/open-webui#troubleshooting"
-										target="_blank"
-									>
-										Click here for help.
-									</a>
-								</div>
-							</div>
-
-							<div class=" mt-6 mx-auto relative group w-fit">
-								<button
-									class="relative z-20 flex px-5 py-2 rounded-full bg-white border border-gray-100 dark:border-none hover:bg-gray-100 transition font-medium text-sm"
-									on:click={async () => {
-										location.href = '/';
-										// await setOllamaVersion();
-									}}
-								>
-									Check Again
-								</button>
-
-								<button
-									class="text-xs text-center w-full mt-2 text-gray-400 underline"
-									on:click={async () => {
-										await setOllamaVersion(REQUIRED_OLLAMA_VERSION);
-									}}>Close</button
 								>
 							</div>
 						</div>
@@ -356,6 +312,7 @@
 		>
 			<Sidebar />
 			<SettingsModal bind:show={$showSettings} />
+			<ChangelogModal bind:show={$showChangelog} />
 			<slot />
 		</div>
 	</div>

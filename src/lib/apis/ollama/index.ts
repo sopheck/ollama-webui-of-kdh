@@ -128,13 +128,25 @@ export const getOllamaModels = async (token: string = '') => {
 		throw error;
 	}
 
-	return (res?.models ?? []).sort((a, b) => {
-		return a.name.localeCompare(b.name);
-	});
+	return (res?.models ?? [])
+		.map((model) => ({ id: model.model, name: model.name ?? model.model, ...model }))
+		.sort((a, b) => {
+			return a.name.localeCompare(b.name);
+		});
 };
 
-export const generateTitle = async (token: string = '', model: string, prompt: string) => {
+// TODO: migrate to backend
+export const generateTitle = async (
+	token: string = '',
+	template: string,
+	model: string,
+	prompt: string
+) => {
 	let error = null;
+
+	template = template.replace(/{{prompt}}/g, prompt);
+
+	console.log(template);
 
 	const res = await fetch(`${OLLAMA_API_BASE_URL}/generate`, {
 		method: 'POST',
@@ -144,7 +156,7 @@ export const generateTitle = async (token: string = '', model: string, prompt: s
 		},
 		body: JSON.stringify({
 			model: model,
-			prompt: `Create a concise, 3-5 word phrase as a header for the following query, strictly adhering to the 3-5 word limit and avoiding the use of the word 'title': ${prompt}`,
+			prompt: template,
 			stream: false
 		})
 	})

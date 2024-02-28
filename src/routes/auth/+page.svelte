@@ -1,8 +1,8 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { userSignIn, userSignUp } from '$lib/apis/auths';
-	import { WEBUI_API_BASE_URL, WEBUI_NAME } from '$lib/constants';
-	import { config, user } from '$lib/stores';
+	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_NAME, config, user } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import toast from 'svelte-french-toast';
 
@@ -61,7 +61,7 @@
 	<div class="fixed m-10 z-50">
 		<div class="flex space-x-2">
 			<div class=" self-center">
-				<img src="/kdh-ollama.png" class="w-20" />
+				<img src="{WEBUI_BASE_URL}/static/kdh-ollama.png" class="w-20" />
 			</div>
 		</div>
 	</div>
@@ -95,7 +95,7 @@
 
 					{#if mode === 'signup'}
 						<div class=" mt-1 text-xs font-medium text-gray-500">
-							ⓘ {WEBUI_NAME} does not make any external connections, and your data stays securely on
+							ⓘ {$WEBUI_NAME} does not make any external connections, and your data stays securely on
 							your locally hosted server.
 						</div>
 					{/if}
