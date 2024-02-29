@@ -1,4 +1,9 @@
 general_settings: {}
 litellm_settings: {}
-model_list: []
+model_list:
+- litellm_params:
+    model: huggingface/mistralai/Mistral-7B-Instruct-v0.1
+  model_info:
+    id: 8f79b27c-f7f9-407d-b46a-006e9f6f2f1c
+  model_name: huggingface/mistralai/Mistral-7B-Instruct-v0.1
 router_settings: {}

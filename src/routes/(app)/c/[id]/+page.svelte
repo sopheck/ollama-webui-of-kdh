@@ -889,5 +889,5 @@
 			/>
 		</div>
 	</div>
-	<Infobar />
+	<!--<Infobar />-->
 {/if}

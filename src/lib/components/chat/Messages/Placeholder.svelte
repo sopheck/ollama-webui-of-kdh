@@ -29,30 +29,20 @@
 					>
 						{#if model in modelfiles}
 							<img
-<<<<<<< HEAD
-								src={modelfiles[model]?.imageUrl ?? '/kdh-ollama-dark.png'}
-=======
-								src={modelfiles[model]?.imageUrl ?? `${WEBUI_BASE_URL}/static/favicon.png`}
->>>>>>> main
+								src={modelfiles[model]?.imageUrl ?? `${WEBUI_BASE_URL}/static/kdh-ollama-dark.png`}
 								alt="modelfile"
 								class=" w-14 rounded-full border-[1px] border-gray-200 dark:border-none"
 								draggable="false"
 							/>
 						{:else}
 							<img
-<<<<<<< HEAD
-								src={models.length === 1 ? '/kdh-ollama.png' : 'kdh-ollama-dark.png'}
+								src={models.length === 1
+									? `${WEBUI_BASE_URL}/static/kdh-ollama.png`
+									: `${WEBUI_BASE_URL}/static/kdh-ollama-dark.png`}
 								class=" w-20 mb-2 {models.length === 1
 									? 'invert-[10%] dark:invert-[100%]'
 									: 'border-[5px] border-white dark:border-gray-800'}  rounded-full"
-								alt="ollama"
-=======
-								src={models.length === 1
-									? `${WEBUI_BASE_URL}/static/favicon.png`
-									: `${WEBUI_BASE_URL}/static/favicon.png`}
-								class=" w-14 rounded-full border-[1px] border-gray-200 dark:border-none"
 								alt="logo"
->>>>>>> main
 								draggable="false"
 							/>
 						{/if}

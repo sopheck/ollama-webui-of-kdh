@@ -5,8 +5,8 @@ name: Create and publish a Docker image
 on:
   push:
     branches:
-      - main
-      - dev
+      - kdh-main
+      #- dev
     tags:
       - v*
 

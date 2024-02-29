@@ -61,7 +61,7 @@
 	<div class="fixed m-10 z-50">
 		<div class="flex space-x-2">
 			<div class=" self-center">
-				<img src="{WEBUI_BASE_URL}/static/kdh-ollama.png" class="w-20" />
+				<img src="{WEBUI_BASE_URL}/static/kdh-ollama.png" class="w-20" alt="logo" />
 			</div>
 		</div>
 	</div>
@@ -90,7 +90,7 @@
 					}}
 				>
 					<div class=" text-xl md:text-2xl font-bold">
-						{mode === 'signin' ? 'Sign in' : 'Sign up'} to KDH KI-Playground
+						{mode === 'signin' ? 'Sign in' : 'Sign up'} to {$WEBUI_NAME}
 					</div>
 
 					{#if mode === 'signup'}
@@ -190,7 +190,10 @@
     <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
         <div class="sm:flex sm:items-center sm:justify-between">
             <a href="https://blogs.hu-berlin.de/furesh/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
-                <img src="/kdh-blue.png" class="h-20" alt="KDH Logo" />
+                <img src="/kdh-blue.png" class="h-[50px]" alt="KDH Logo" />
+            </a>
+			<a href="https://hu-berlin.de" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
+                <img src="/hu-logo.png" class="h-[100px]" alt="HU Logo" />
             </a>
             <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0"> <!--dark:text-gray-400-->
                 <!--<li>

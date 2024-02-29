@@ -11,13 +11,13 @@ services:
     image: ollama/ollama:latest
 
   open-webui:
-    #build:
-      #context: .
-      #args:
-        #OLLAMA_API_BASE_URL: '/ollama/api'
-      #dockerfile: Dockerfile
-    #image: localhost/kdh-ollama-webui:latest
-    image: ghcr.io/sopheck/kdh-open-webui:latest
+    build:
+      context: .
+      args:
+        OLLAMA_API_BASE_URL: '/ollama/api'
+      dockerfile: Dockerfile
+    image: localhost/kdh-ollama-webui:latest
+    #image: ghcr.io/sopheck/kdh-open-webui:latest
     container_name: kdh-ollama-webui
     volumes:
       - open-webui:/app/backend/data

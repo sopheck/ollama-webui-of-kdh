@@ -23,7 +23,7 @@
 	let show = false;
 	let navElement;
 
-	let title: string = 'KDH KI-Playground';
+	let title: string = 'UI';
 	let search = '';
 
 	let chatDeleteId = null;
@@ -115,17 +115,8 @@
 				}}
 			>
 				<div class="flex self-center">
-<<<<<<< HEAD
 					<div class="self-center mr-3.5">
-						<img src="/kdh-ollama.png" class=" w-5 invert-[100%] rounded-full" />
-=======
-					<div class="self-center mr-1.5">
-						<img
-							src="{WEBUI_BASE_URL}/static/favicon.png"
-							class=" w-7 -translate-x-1.5 rounded-full"
-							alt="logo"
-						/>
->>>>>>> main
+						<img src="{WEBUI_BASE_URL}/static/kdh-ollama.png" class=" w-5 invert-[100%] rounded-full" alt="logo" />
 					</div>
 
 					<div class=" self-center font-medium text-sm">New Chat</div>

@@ -10,11 +10,7 @@
 	import Tags from '../common/Tags.svelte';
 
 	export let initNewChat: Function;
-<<<<<<< HEAD
-	export let title: string = 'KDH KI-Playground';
-=======
 	export let title: string = $WEBUI_NAME;
->>>>>>> main
 	export let shareEnabled: boolean = false;
 
 	export let tags = [];
@@ -105,11 +101,7 @@
 			</div>
 			<div class=" flex-1 self-center font-medium line-clamp-1">
 				<div>
-<<<<<<< HEAD
-					{title != '' ? title : 'KDH KI-Playground'}
-=======
 					{title != '' ? title : $WEBUI_NAME}
->>>>>>> main
 				</div>
 			</div>
 
