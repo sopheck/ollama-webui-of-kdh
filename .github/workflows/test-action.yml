@@ -1,0 +1,13 @@
+name: Echo Action
+
+on:
+  push:
+    branches:
+      - kdh-main
+
+jobs:
+  echo_message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo a message
+        run: echo "Das funktioniert!"
