@@ -1,6 +1,6 @@
 {
 	"name": "kdh_ki-playground",
-	"version": "0.1.2_kdh",
+	"version": "0.1.3_kdh",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --host",

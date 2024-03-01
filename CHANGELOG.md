@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3_kdh] - 2024-03-01
+
+### Fixed
+
+- Corrected a typo in the Changelog that has crashed the app in config.py
+
 ## [0.1.2_kdh] - 2024-03-01
 
 ### Added
@@ -17,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Merged new features of Open WebUI ([0.1.106])
 
-## Changed
+### Changed
 
 - Disabled the Infobar on the right side due to low RWD (Issue #1).
 
@@ -27,18 +33,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0_kdh] - 2024-02-28
 
+### Added
+
+- Adapted the design a little to KDH design
+- Added an Infobar on the right hand side for details on the models (not yet implemented).
+- A placeholder has been added in the left sidebar for the planned critical documentation later on. Only visible to admins for the time being
+
 ### Changed
 
 📣 The fork of Open WebUI from KDH starts here. 🙌
 
 **All future releases from here on refer to the fork and no longer to the official Open WebUI repo.**
-
-### Added
-
-- Adapted the design a little to KDH design
-- Added an Infobar on the right hand side for details on the models (not yet implemented). 
-- A placeholder has been added in the left sidebar for the planned critical documentation later on.
-  - Only visible to admins for the time being
 
 ## [0.1.106] - 2024-02-27
 
