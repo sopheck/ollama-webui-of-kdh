@@ -192,21 +192,31 @@
             <a href="https://blogs.hu-berlin.de/furesh/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
                 <img src="/kdh-blue.png" class="h-[50px]" alt="KDH Logo" />
             </a>
-			<a href="https://hu-berlin.de" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
-                <img src="/hu-logo.png" class="h-[100px]" alt="HU Logo" />
-            </a>
+			
             <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0"> <!--dark:text-gray-400-->
-                <!--<li>
-                    <a href="https://blogs.hu-berlin.de/furesh/" class="hover:underline me-4 md:me-6">KDH Website</a>
-                </li>-->
-                <li class="flex flex-col items-center">	
-                    <p class="me-4 md:me-6 text-center">
-						Your data will be stored exclusively on HU Berlin servers and<br>will not be passed on to third parties.
-					</p>
-					<svg class="w-6 h-6 mt-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <li>
+                    <!--<a href="https://blogs.hu-berlin.de/furesh/" class="hover:underline me-4 md:me-6">KDH Website</a>
+                -->	In Kooperation mit:
+				</li>
+				<li>
+					<a href="https://ai-skills.hu-berlin.de/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
+						<img src="/ai-skills-logo.svg" class="h-[100px]" alt="KDH Logo" />
+					</a>
+				</li>
+				<li>
+					<a href="https://4memory.de/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
+						<img src="/4memory-logo.png" class="h-[100px]" alt="KDH Logo" />
+					</a>
+				</li>
+                <li class="flex flex-col items-center pl-[200px] hyphens-auto">	
+					<svg class="w-6 h-6 my-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
 						<path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
 					</svg>
+                    <p class="me-4 md:me-6 text-center">
+						Your data will be stored<br>on servers of the HU Berlin<br>and will not be passed on<br>to third parties.
+					</p>
                 </li>
+
                 <!--<li>
                     <a href="#" class="hover:underline me-4 md:me-6">Licensing</a>
                 </li>
@@ -216,8 +226,16 @@
             </ul>
         </div>
         <hr class="my-6 sm:mx-auto lg:my-8" /> <!--dark:border-gray-900-->
-        <span class="block text-sm text-gray-500 sm:text-center"><!--dark:text-gray-400-->© 2024 <a href="https://blogs.hu-berlin.de/furesh/" class="hover:underline">KDH UB HU-Berlin</a>. MIT License.</span>
-    </div>
+        <div class="grid place-items-center">
+			<div class="text-sm text-gray-500">
+				© 2024 
+				<a href="https://blogs.hu-berlin.de/furesh/" class="hover:underline">KDH UB HU-Berlin</a>. MIT License.
+				<a href="https://hu-berlin.de" class="mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse"><img src="/hu-logo.png" class="h-[100px]" alt="HU Logo"></a>
+			</div>
+		</div>
+		
+		
+	</div>
 </footer>
 
 
